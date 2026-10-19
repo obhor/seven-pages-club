@@ -84,16 +84,16 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 1px
 .day-button.is-today::after {
   content: '*';
   position: absolute;
-  top: 5px;
-  right: 2px;
+  top: 2px;
+  right: -2px;
   font-family: var(--sans);
-  font-size: 22px;
+  font-size: 27px;
   font-weight: 900;
   line-height: 1;
   color: var(--ink);
   -webkit-text-stroke: .5px currentColor;
 }
-.day-button.is-today:not(.is-empty)::after { top: -3px; right: -3px; font-size: 16px; }
+.day-button.is-today:not(.is-empty)::after { top: -5px; right: -5px; font-size: 20px; }
 .day-button:disabled { cursor: default; pointer-events: none; }
 
 .calendar-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 24px; border-top: 1px solid var(--line); max-width: 1080px; margin: 32px auto 0; padding-top: 18px; }
@@ -196,6 +196,8 @@ textarea.field:focus { border-color: var(--ink); }
   .month-switch { margin-bottom: 20px; }
   .calendar-grid { grid-template-columns: repeat(7, 46px); gap: 5px 3px; }
   .day-button { width: 43px; height: 43px; font-size: 27px; border-width: 4.5px; }
+  .day-button.is-today::after { top: 2px; right: 0px; font-size: 22px; }
+  .day-button.is-today:not(.is-empty)::after { top: -4px; right: -4px; font-size: 16px; }
   .day-button.is-low, .day-button.is-goal, .day-button.is-over { border-width: 4.5px; }
   .calendar-legend { gap: 10px 15px; margin-top: 24px; }
   .day-panel { width: 100%; border-left: 0; padding: 28px 22px 34px; }
