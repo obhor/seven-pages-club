@@ -78,7 +78,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 1px
 .icon-button { width: 30px; height: 30px; border: 1px solid transparent; background: transparent; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; color: var(--muted); transition: border-color .18s, color .18s; }
 .icon-button:hover:not(:disabled) { border-color: var(--line-strong); color: var(--ink); }
 .icon-button:disabled { opacity: .25; cursor: default; }
-.calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); justify-items: center; gap: 6px 4px; width: 100%; margin: 0 auto; }
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 60px); justify-content: center; justify-items: center; gap: 6px 8px; width: 100%; margin: 0 auto; }
 .day-cell { min-width: 0; display: flex; justify-content: center; }
 .day-button {
   position: relative;
