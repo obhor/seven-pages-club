@@ -39,7 +39,7 @@ body::before {
 button, input, textarea { font: inherit; }
 button { color: inherit; }
 button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 1px solid var(--ink); outline-offset: 3px; }
-.page-shell { max-width: 1180px; margin: 0 auto; padding: 0 48px 42px; }
+.page-shell { margin: 0 auto; padding: 0 4vw 42px; }
 
 .masthead { position: relative; text-align: center; padding: 26px 0 22px; border-bottom: 1px solid var(--line); }
 .hero-title { margin: 0; display: flex; align-items: center; justify-content: center; gap: .12em; font-family: var(--display); font-size: clamp(52px, 7vw, 86px); font-weight: 400; line-height: .98; letter-spacing: -.055em; text-shadow: .018em 0 currentColor, -.012em 0 currentColor, 0 .008em currentColor; -webkit-text-stroke: .12px currentColor; }
@@ -78,7 +78,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 1px
 .icon-button { width: 30px; height: 30px; border: 1px solid transparent; background: transparent; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; color: var(--muted); transition: border-color .18s, color .18s; }
 .icon-button:hover:not(:disabled) { border-color: var(--line-strong); color: var(--ink); }
 .icon-button:disabled { opacity: .25; cursor: default; }
-.calendar-grid { display: grid; grid-template-columns: repeat(7, 66px); justify-content: center; justify-items: center; gap: 6px 4px; margin: 0 auto; }
+.calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); justify-items: center; gap: 6px 4px; width: 100%; margin: 0 auto; }
 .day-cell { min-width: 0; display: flex; justify-content: center; }
 .day-button {
   position: relative;
@@ -122,13 +122,13 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 1px
 .day-button.is-today:not(.is-empty)::after { top: -5px; right: -5px; font-size: 20px; }
 .day-button:disabled { cursor: default; pointer-events: none; }
 
-.calendar-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 24px; border-top: 1px solid var(--line); max-width: 1080px; margin: 32px auto 0; padding-top: 18px; }
+.calendar-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 24px; border-top: 1px solid var(--line); margin: 32px auto 0; padding-top: 18px; }
 .legend-item { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 8px; text-transform: uppercase; letter-spacing: .04em; }
 .legend-symbol { width: 13px; height: 13px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; }
 .legend-symbol.low { border: 2px solid var(--line-strong); }
 .legend-symbol.goal { border: 2px solid var(--ink); }
 .legend-symbol.empty { border: 1px solid #d3d2cb; }
-.history-control { max-width: 1080px; margin: 20px auto 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 8px; text-transform: uppercase; letter-spacing: .08em; }
+.history-control { margin: 20px auto 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 8px; text-transform: uppercase; letter-spacing: .08em; }
 .text-button { border: 0; border-bottom: 1px solid var(--line-strong); background: none; padding: 2px 0; color: var(--muted); cursor: pointer; font-size: 8px; text-transform: uppercase; letter-spacing: .08em; }
 .text-button:hover { color: var(--ink); border-color: var(--ink); }
 
