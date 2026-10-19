@@ -76,8 +76,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 1px
 .day-button:hover:not(:disabled) { border-color: var(--line-strong); transform: translateY(-2px); }
 .day-button.is-empty { color: #b8b7b0; }
 .day-button.is-empty:hover:not(:disabled) { color: var(--ink); }
-.day-button.is-low { border: 3.75px solid var(--line-strong); color: var(--muted); }
-.day-button.is-goal, .day-button.is-over { background: transparent; border: 3.75px solid var(--ink); color: var(--ink); }
+.day-button.is-low { border: 4.5px solid var(--line-strong); color: var(--muted); }
+.day-button.is-goal, .day-button.is-over { background: transparent; border: 4.5px solid var(--ink); color: var(--ink); }
 .day-button.is-selected { box-shadow: 0 0 0 2px var(--paper), 0 0 0 3px var(--ink); }
 .day-button.is-today:not(.is-selected) { text-decoration: underline; text-underline-offset: 6px; text-decoration-thickness: 1px; }
 .day-button:disabled { cursor: default; pointer-events: none; }
@@ -181,8 +181,8 @@ textarea.field:focus { border-color: var(--ink); }
   .calendar-section { padding-top: 24px; }
   .month-switch { margin-bottom: 20px; }
   .calendar-grid { gap: 6px 2px; }
-  .day-button { width: clamp(38px, 8.6vw, 56px); height: clamp(38px, 8.6vw, 56px); font-size: clamp(14px, 3.3vw, 22px); border-width: 3px; }
-  .day-button.is-low, .day-button.is-goal, .day-button.is-over { border-width: 3px; }
+  .day-button { width: clamp(38px, 8.6vw, 56px); height: clamp(38px, 8.6vw, 56px); font-size: clamp(14px, 3.3vw, 22px); border-width: 3.5px; }
+  .day-button.is-low, .day-button.is-goal, .day-button.is-over { border-width: 3.5px; }
   .calendar-legend { gap: 10px 15px; margin-top: 24px; }
   .day-panel { width: 100%; border-left: 0; padding: 28px 22px 34px; }
   .footer { flex-direction: column; align-items: center; gap: 9px; text-align: center; }
