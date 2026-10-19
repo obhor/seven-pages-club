@@ -10,7 +10,6 @@ const GOAL = 7;
 const STORAGE_KEY = 'seven-pages-club-v1';
 const now = new Date();
 const todayKey = toKey(now);
-const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 function toKey(date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
@@ -20,7 +19,7 @@ function fromKey(key) {
   return new Date(y, m - 1, d);
 }
 function formatMonth(date) {
-  return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  return `${date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()} ${String(date.getFullYear()).slice(-2)}`;
 }
 function formatSelectedDate(key) {
   const date = fromKey(key);
@@ -88,13 +87,15 @@ export default function App() {
   const entriesSourceRef = useRef('local');
   const [entries, setEntries] = useState(localEntriesRef.current);
   const [user, setUser] = useState(null);
-  const [selectedKey, setSelectedKey] = useState(todayKey);
+  const [selectedKey, setSelectedKey] = useState(null);
   const [viewMonth, setViewMonth] = useState(new Date(now.getFullYear(), now.getMonth(), 1));
   const [draft, setDraft] = useState({ sessions: [newSession()], note: '', word: '', meaning: '' });
   const [feedback, setFeedback] = useState('');
   const [lookupFeedback, setLookupFeedback] = useState('');
   const [signInOpen, setSignInOpen] = useState(false);
+  const [authMode, setAuthMode] = useState('signin');
   const [signInMessage, setSignInMessage] = useState('');
+  const [panelOpen, setPanelOpen] = useState(false);
   const [toast, setToast] = useState('');
 
   useEffect(() => {
@@ -137,17 +138,27 @@ export default function App() {
     return () => window.clearTimeout(id);
   }, [toast]);
 
+  useEffect(() => {
+    if (!panelOpen) return undefined;
+    const onKeyDown = event => { if (event.key === 'Escape') setPanelOpen(false); };
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [panelOpen]);
+
   const daysInMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 0).getDate();
-  const firstOffset = (new Date(viewMonth.getFullYear(), viewMonth.getMonth(), 1).getDay() + 6) % 7;
   const calendarCells = useMemo(() => {
-    const cells = Array.from({ length: firstOffset }, (_, index) => ({ key: `blank-${index}`, blank: true }));
+    const cells = [];
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(viewMonth.getFullYear(), viewMonth.getMonth(), day);
-      cells.push({ key: toKey(date), day, date, blank: false });
+      cells.push({ key: toKey(date), day, date });
     }
-    while (cells.length % 7) cells.push({ key: `tail-${cells.length}`, blank: true });
     return cells;
-  }, [daysInMonth, firstOffset, viewMonth]);
+  }, [daysInMonth, viewMonth]);
 
   const monthStats = useMemo(() => {
     const prefix = `${viewMonth.getFullYear()}-${String(viewMonth.getMonth() + 1).padStart(2, '0')}-`;
@@ -157,19 +168,17 @@ export default function App() {
 
   const liveTotal = draft.sessions.reduce((sum, session) => sum + Math.max(0, Math.floor(Number(session.pages) || 0)), 0);
   const liveState = stateFor(liveTotal);
-  const selectedDate = fromKey(selectedKey);
   const isFutureMonth = (year, month) => new Date(year, month, 1) > new Date(now.getFullYear(), now.getMonth(), 1);
 
   function selectDate(key) {
     setSelectedKey(key);
     const date = fromKey(key);
     setViewMonth(new Date(date.getFullYear(), date.getMonth(), 1));
+    setPanelOpen(true);
   }
   function changeMonth(delta) {
     const next = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + delta, 1);
     if (isFutureMonth(next.getFullYear(), next.getMonth())) return;
-    const clampedDay = Math.min(fromKey(selectedKey).getDate(), new Date(next.getFullYear(), next.getMonth() + 1, 0).getDate());
-    setSelectedKey(toKey(new Date(next.getFullYear(), next.getMonth(), clampedDay)));
     setViewMonth(next);
   }
   function updateSession(id, key, value) {
@@ -274,6 +283,11 @@ export default function App() {
       setLookupFeedback('Could not retrieve a definition. Add it manually.');
     }
   }
+  function openAuth(mode) {
+    setAuthMode(mode);
+    setSignInMessage('');
+    setSignInOpen(true);
+  }
   async function signInWithGoogle() {
     setSignInMessage('');
     try {
@@ -293,46 +307,35 @@ export default function App() {
 
   return (
     <div className="page-shell">
-      <header className="topbar">
-        <div className="edition"><strong>Reading practice</strong><br />No. 07 / Independent</div>
-        <div className="mini-mark" aria-label="Seven Pages Club">seven pages</div>
-        {user ? (
-          <button className="signin-link" onClick={signOutUser} title={user.email || 'Signed in'}>Sign out</button>
-        ) : (
-          <button className="signin-link" onClick={() => { setSignInOpen(true); setSignInMessage(''); }}>
-            Sign in <ArrowUpRight size={12} strokeWidth={1.5} aria-hidden="true" />
-          </button>
-        )}
+      <header className="masthead" aria-labelledby="page-title">
+        <h1 className="hero-title" id="page-title">Seven Pages Club</h1>
+        <nav className="account-links" aria-label="Account">
+          {user ? (
+            <button className="account-link" onClick={signOutUser} title={user.email || undefined}>Sign out</button>
+          ) : (
+            <>
+              <button className="account-link" onClick={() => openAuth('signin')}>Sign in</button>
+              <button className="account-link" onClick={() => openAuth('signup')}>Sign up</button>
+            </>
+          )}
+        </nav>
       </header>
 
       <main>
-        <section className="masthead" aria-labelledby="page-title">
-          <div className="eyebrow">A reading club for the long run</div>
-          <h1 className="hero-title" id="page-title">Seven Pages Club</h1>
-          <p className="hero-caption">Read anything <span>·</span> Seven pages a day <span>·</span> Keep going</p>
-        </section>
-
         <section className="metrics-strip" aria-label="Reading statistics">
-          <div className="metric"><div className="metric-label">Pages this month</div><div className="metric-value">{monthStats.pages.toLocaleString()} pages</div></div>
-          <div className="metric"><div className="metric-label">Reading days</div><div className="metric-value">{monthStats.days} {monthStats.days === 1 ? 'day' : 'days'}</div></div>
-          <div className="metric"><div className="metric-label">Current chain</div><div className="metric-value">{computeChain(entries)} {computeChain(entries) === 1 ? 'day' : 'days'}</div></div>
+          <div className="metric"><div className="metric-label">Pages this month</div><div className="metric-value">{monthStats.pages.toLocaleString()}</div></div>
+          <div className="metric"><div className="metric-label">Reading days</div><div className="metric-value">{monthStats.days}</div></div>
+          <div className="metric"><div className="metric-label">Current chain</div><div className="metric-value">{computeChain(entries)}</div></div>
         </section>
 
-        <section className="workspace" aria-label="Reading calendar and daily log">
-          <section className="calendar-section" aria-labelledby="calendar-heading">
-            <div className="section-heading">
-              <div className="section-kicker" id="calendar-heading">Your reading record</div>
-              <div className="month-switch">
-                <button className="icon-button" onClick={() => changeMonth(-1)} aria-label="Previous month"><ChevronLeft size={16} strokeWidth={1.3} /></button>
-                <div className="month-name">{formatMonth(viewMonth)}</div>
-                <button className="icon-button" onClick={() => changeMonth(1)} aria-label="Next month" disabled={isFutureMonth(viewMonth.getFullYear(), viewMonth.getMonth() + 1)}><ChevronRight size={16} strokeWidth={1.3} /></button>
-              </div>
+        <section className="calendar-section" aria-label="Reading calendar">
+            <div className="month-switch">
+              <button className="icon-button" onClick={() => changeMonth(-1)} aria-label="Previous month"><ChevronLeft size={16} strokeWidth={1.3} /></button>
+              <div className="month-name">{formatMonth(viewMonth)}</div>
+              <button className="icon-button" onClick={() => changeMonth(1)} aria-label="Next month" disabled={isFutureMonth(viewMonth.getFullYear(), viewMonth.getMonth() + 1)}><ChevronRight size={16} strokeWidth={1.3} /></button>
             </div>
-            <div className="calendar-rule" />
-            <div className="weekday-row" aria-hidden="true">{weekdays.map(day => <div className="weekday" key={day}>{day}</div>)}</div>
             <div className="calendar-grid" aria-label="Calendar dates">
               {calendarCells.map(cell => {
-                if (cell.blank) return <div className="day-cell" key={cell.key} aria-hidden="true" />;
                 const total = totalPages(entries[cell.key]);
                 const state = stateFor(total);
                 const future = cell.date > new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -353,13 +356,16 @@ export default function App() {
             <div className="calendar-legend" aria-label="Page goal states">
               <div className="legend-item"><span className="legend-symbol empty" />No entry</div>
               <div className="legend-item"><span className="legend-symbol low" />1–6 pages</div>
-              <div className="legend-item"><span className="legend-symbol goal" />7 pages</div>
-              <div className="legend-item"><span className="legend-symbol over" />8+ pages</div>
+              <div className="legend-item"><span className="legend-symbol goal" />7+ pages</div>
             </div>
             <div className="history-control"><span>{user ? (user.email || 'Synced to your account') : Object.keys(entries).length ? 'Stored in this browser' : 'No reading history yet'}</span><button className="text-button" onClick={clearHistory}>Clear history</button></div>
-          </section>
+        </section>
+      </main>
 
-          <section className="day-panel" aria-labelledby="dayPanelTitle">
+      {panelOpen && (
+        <div className="drawer-backdrop" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) setPanelOpen(false); }}>
+          <section className="day-panel" role="dialog" aria-modal="true" aria-labelledby="dayPanelTitle">
+            <button className="drawer-close" onClick={() => setPanelOpen(false)} aria-label="Close daily entry"><X size={18} strokeWidth={1.2} /></button>
             <div className="panel-top">
               <div>
                 <div className="date-overline">{formatSelectedDate(selectedKey)}</div>
@@ -407,8 +413,8 @@ export default function App() {
               <div className="save-feedback" aria-live="polite">{feedback}</div>
             </form>
           </section>
-        </section>
-      </main>
+        </div>
+      )}
 
       <footer className="footer">
         <div><span className="footer-mark">Seven Pages Club</span> / A little every day.</div>
@@ -418,10 +424,9 @@ export default function App() {
       {signInOpen && <div className="modal-backdrop" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) setSignInOpen(false); }}>
         <section className="modal" role="dialog" aria-modal="true" aria-labelledby="signInHeading">
           <button className="modal-close" onClick={() => setSignInOpen(false)} aria-label="Close sign in"><X size={17} /></button>
-          <div className="eyebrow">A place to return to</div>
-          <h2 id="signInHeading">Sign in</h2>
-          <p>Sign in to sync your reading record across devices. Signed out, entries stay in this browser.</p>
-          <button className="save-button" type="button" onClick={signInWithGoogle}><span>Continue with Google</span><ArrowUpRight className="arrow" size={16} strokeWidth={1.4} /></button>
+          <h2 id="signInHeading">{authMode === 'signup' ? 'Create a profile' : 'Sign in'}</h2>
+          <p>{authMode === 'signup' ? 'Create a profile to keep your reading record across devices.' : 'Sign in to continue your reading record across devices.'}</p>
+          <button className="save-button" type="button" onClick={signInWithGoogle}><span>Continue with Google</span></button>
           <div className="modal-message" aria-live="polite">{signInMessage}</div>
         </section>
       </div>}
