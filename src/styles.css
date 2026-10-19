@@ -53,13 +53,14 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 1px
   border: .09em solid var(--ink);
   border-radius: 50%;
   font-family: var(--sans);
-  font-size: .8em;
+  font-size: .77em;
   font-weight: 900;
   letter-spacing: -.02em;
   line-height: 1;
   text-shadow: none;
   -webkit-text-stroke: .5px currentColor;
 }
+.title-mark > span { display: inline-block; transform: translateY(.08em) scaleX(.92); }
 .account-links { position: absolute; top: 50%; right: 0; transform: translateY(-50%); display: flex; gap: 24px; }
 .account-link { border: 0; border-bottom: 1px solid transparent; background: none; padding: 3px 0; cursor: pointer; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
 .account-link:hover { border-bottom-color: var(--ink); }

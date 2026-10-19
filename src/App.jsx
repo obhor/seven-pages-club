@@ -310,7 +310,7 @@ export default function App() {
   return (
     <div className="page-shell">
       <header className="masthead" aria-labelledby="page-title">
-        <h1 className="hero-title" id="page-title"><span className="title-mark" aria-label="Seven">7</span> Pages Book Club</h1>
+        <h1 className="hero-title" id="page-title"><span className="title-mark" aria-label="Seven"><span>7</span></span> Pages Book Club</h1>
         <nav className="account-links" aria-label="Account">
           {user ? (
             <button className="account-link" onClick={signOutUser} title={user.email || undefined}>Sign out</button>
