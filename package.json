@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "vercel deploy --prod --yes -b COMMIT_COUNT=$(git rev-list --count HEAD)"
   },
   "dependencies": {
     "firebase": "^13.0.0",
