@@ -55,6 +55,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 1px
 .calendar-grid { display: grid; grid-template-columns: repeat(7, 66px); justify-content: center; justify-items: center; gap: 6px 4px; margin: 0 auto; }
 .day-cell { min-width: 0; display: flex; justify-content: center; }
 .day-button {
+  position: relative;
   width: 60px;
   height: 60px;
   border: 6px solid transparent;
@@ -80,7 +81,19 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 1px
 .day-button.is-low { border: 6px solid var(--line-strong); color: var(--muted); }
 .day-button.is-goal, .day-button.is-over { background: transparent; border: 6px solid var(--ink); color: var(--ink); }
 .day-button.is-selected { box-shadow: 0 0 0 2px var(--paper), 0 0 0 3px var(--ink); }
-.day-button.is-today:not(.is-selected) { text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1px; }
+.day-button.is-today::after {
+  content: '*';
+  position: absolute;
+  top: 5px;
+  right: 2px;
+  font-family: var(--sans);
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--ink);
+  -webkit-text-stroke: .5px currentColor;
+}
+.day-button.is-today:not(.is-empty)::after { top: -3px; right: -3px; font-size: 16px; }
 .day-button:disabled { cursor: default; pointer-events: none; }
 
 .calendar-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 24px; border-top: 1px solid var(--line); max-width: 1080px; margin: 32px auto 0; padding-top: 18px; }
