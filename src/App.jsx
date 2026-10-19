@@ -310,7 +310,7 @@ export default function App() {
   return (
     <div className="page-shell">
       <header className="masthead" aria-labelledby="page-title">
-        <h1 className="hero-title" id="page-title">Seven Pages Club</h1>
+        <h1 className="hero-title" id="page-title"><span className="title-mark" aria-label="Seven">7</span> Pages Book Club</h1>
         <nav className="account-links" aria-label="Account">
           {user ? (
             <button className="account-link" onClick={signOutUser} title={user.email || undefined}>Sign out</button>
@@ -419,7 +419,7 @@ export default function App() {
       )}
 
       <footer className="footer">
-        <div><span className="footer-mark">Seven Pages Club</span> / A little every day.</div>
+        <div><span className="footer-mark">Seven Pages Book Club</span> / A little every day.</div>
         <div>Any book. Any order. Your own chain.</div>
       </footer>
 

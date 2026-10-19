@@ -1,10 +1,17 @@
+@font-face {
+  font-family: 'Goudy Old Style';
+  src: url('/fonts/GOUDOS.TTF') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 :root {
   --paper: #f8f7f3;
   --ink: #171715;
   --muted: #77766f;
   --line: #d9d8d1;
   --line-strong: #b9b8b0;
-  --display: 'Goudy Bookletter 1911', 'Goudy Old Style', 'Palatino Linotype', Georgia, serif;
+  --display: 'Goudy Old Style', 'Palatino Linotype', Georgia, serif;
   --mono: 'Space Mono', 'Courier New', monospace;
   --sans: 'Helvetica Neue', 'Nimbus Sans', Helvetica, Arial, sans-serif;
 }
@@ -35,7 +42,24 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 1px
 .page-shell { max-width: 1180px; margin: 0 auto; padding: 0 48px 42px; }
 
 .masthead { position: relative; text-align: center; padding: 26px 0 22px; border-bottom: 1px solid var(--line); }
-.hero-title { margin: 0; font-family: var(--display); font-size: clamp(52px, 7vw, 86px); font-weight: 400; line-height: .98; letter-spacing: -.055em; text-shadow: .018em 0 currentColor, -.012em 0 currentColor, 0 .008em currentColor; -webkit-text-stroke: .12px currentColor; }
+.hero-title { margin: 0; display: flex; align-items: center; justify-content: center; gap: .16em; font-family: var(--display); font-size: clamp(52px, 7vw, 86px); font-weight: 400; line-height: .98; letter-spacing: -.055em; text-shadow: .018em 0 currentColor, -.012em 0 currentColor, 0 .008em currentColor; -webkit-text-stroke: .12px currentColor; }
+.title-mark {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25em;
+  height: 1.25em;
+  border: .12em solid var(--ink);
+  border-radius: 50%;
+  font-family: var(--sans);
+  font-size: .58em;
+  font-weight: 900;
+  letter-spacing: -.02em;
+  line-height: 1;
+  text-shadow: none;
+  -webkit-text-stroke: .5px currentColor;
+}
 .account-links { position: absolute; top: 50%; right: 0; transform: translateY(-50%); display: flex; gap: 24px; }
 .account-link { border: 0; border-bottom: 1px solid transparent; background: none; padding: 3px 0; cursor: pointer; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
 .account-link:hover { border-bottom-color: var(--ink); }
