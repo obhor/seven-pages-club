@@ -310,6 +310,7 @@ export default function App() {
   return (
     <div className="page-shell">
       <header className="masthead" aria-labelledby="page-title">
+        <span className="commit-mark" title={`${__COMMIT_COUNT__} commits`}>{__COMMIT_COUNT__}</span>
         <h1 className="hero-title" id="page-title"><span className="title-mark" aria-label="Seven"><span>7</span></span> Pages Book Club</h1>
         <nav className="account-links" aria-label="Account">
           {user ? (
