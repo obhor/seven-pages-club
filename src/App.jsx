@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowUpRight, ChevronLeft, ChevronRight, Plus, X } from 'lucide-react';
 import { GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
-import { collection, deleteDoc, doc, getDocs, onSnapshot, setDoc } from 'firebase/firestore';
+import { collection, deleteDoc, doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { auth, db } from './firebase.js';
 
 const googleProvider = new GoogleAuthProvider();
@@ -254,21 +254,6 @@ export default function App() {
     setFeedback('');
     setToast('Day cleared');
   }
-  async function clearHistory() {
-    if (!window.confirm('Clear all reading history? This cannot be undone.')) return;
-    if (user) {
-      try {
-        const snapshot = await getDocs(collection(db, 'users', user.uid, 'entries'));
-        await Promise.all(snapshot.docs.map(item => deleteDoc(item.ref)));
-      } catch {
-        setToast('Could not clear your account history');
-        return;
-      }
-    }
-    setEntries({});
-    setDraft({ sessions: [newSession()], note: '', word: '', meaning: '' });
-    setToast('Reading history cleared');
-  }
   async function lookupWord() {
     const word = draft.word.trim();
     if (!word) { setLookupFeedback('Enter a word first.'); return; }
@@ -349,7 +334,6 @@ export default function App() {
                 );
               })}
             </div>
-            <div className="history-control"><span>{user ? (user.email || 'Synced to your account') : Object.keys(entries).length ? 'Stored in this browser' : 'No reading history yet'}</span><button className="text-button" onClick={clearHistory}>Clear history</button></div>
         </section>
       </main>
 
@@ -408,20 +392,13 @@ export default function App() {
       )}
 
       <aside className="index-legend" aria-label="Legend">
-        <h2>Legend</h2>
-        <div className="index-rule" />
         <ul>
           <li><span className="index-mark mark-goal">7</span><span>7 or more pages read; daily target completed.</span></li>
-          <li><span className="index-mark mark-low">4</span><span>Fewer than 7 pages read, but an entry was logged; the reading streak is maintained.</span></li>
-          <li><span className="index-mark mark-empty">9</span><span>No reading entry recorded; the reading streak is broken.</span></li>
-          <li><span className="index-mark mark-today">*</span><span>Marks the current day.</span></li>
+          <li><span className="index-mark mark-low">7</span><span>Fewer than 7 pages read, but an entry was logged; the reading streak is maintained.</span></li>
+          <li><span className="index-mark mark-empty">7</span><span>No reading entry recorded; the reading streak is broken.</span></li>
+          <li><span className="index-mark mark-today"><span>7</span><span className="index-star">*</span></span><span>Marks the current day.</span></li>
         </ul>
       </aside>
-
-      <footer className="footer">
-        <div><span className="footer-mark">Seven Pages Book Club</span> / A little every day.</div>
-        <div>Any book. Any order. Your own chain.</div>
-      </footer>
 
       {signInOpen && <div className="modal-backdrop" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) setSignInOpen(false); }}>
         <section className="modal" role="dialog" aria-modal="true" aria-labelledby="signInHeading">
