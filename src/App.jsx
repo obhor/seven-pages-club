@@ -349,11 +349,6 @@ export default function App() {
                 );
               })}
             </div>
-            <div className="calendar-legend" aria-label="Page goal states">
-              <div className="legend-item"><span className="legend-symbol empty" />No entry</div>
-              <div className="legend-item"><span className="legend-symbol low" />1–6 pages</div>
-              <div className="legend-item"><span className="legend-symbol goal" />7+ pages</div>
-            </div>
             <div className="history-control"><span>{user ? (user.email || 'Synced to your account') : Object.keys(entries).length ? 'Stored in this browser' : 'No reading history yet'}</span><button className="text-button" onClick={clearHistory}>Clear history</button></div>
         </section>
       </main>
@@ -411,6 +406,17 @@ export default function App() {
           </section>
         </div>
       )}
+
+      <aside className="index-legend" aria-label="Legend">
+        <h2>Legend</h2>
+        <div className="index-rule" />
+        <ul>
+          <li><span className="index-mark mark-goal">7</span><span>7 or more pages read; daily target completed.</span></li>
+          <li><span className="index-mark mark-low">4</span><span>Fewer than 7 pages read, but an entry was logged; the reading streak is maintained.</span></li>
+          <li><span className="index-mark mark-empty">9</span><span>No reading entry recorded; the reading streak is broken.</span></li>
+          <li><span className="index-mark mark-today">*</span><span>Marks the current day.</span></li>
+        </ul>
+      </aside>
 
       <footer className="footer">
         <div><span className="footer-mark">Seven Pages Book Club</span> / A little every day.</div>
