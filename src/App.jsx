@@ -1,5 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowUpRight, ChevronLeft, ChevronRight, Plus, X } from 'lucide-react';
+import { GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
+import { collection, deleteDoc, doc, getDocs, onSnapshot, setDoc } from 'firebase/firestore';
+import { auth, db } from './firebase.js';
+
+const googleProvider = new GoogleAuthProvider();
 
 const GOAL = 7;
 const STORAGE_KEY = 'seven-pages-club-v1';
@@ -78,20 +83,43 @@ function computeChain(entries, goalOnly = false) {
 }
 
 export default function App() {
-  const [entries, setEntries] = useState(getInitialEntries);
+  const localEntriesRef = useRef(null);
+  if (localEntriesRef.current === null) localEntriesRef.current = getInitialEntries();
+  const entriesSourceRef = useRef('local');
+  const [entries, setEntries] = useState(localEntriesRef.current);
+  const [user, setUser] = useState(null);
   const [selectedKey, setSelectedKey] = useState(todayKey);
   const [viewMonth, setViewMonth] = useState(new Date(now.getFullYear(), now.getMonth(), 1));
   const [draft, setDraft] = useState({ sessions: [newSession()], note: '', word: '', meaning: '' });
   const [feedback, setFeedback] = useState('');
   const [lookupFeedback, setLookupFeedback] = useState('');
   const [signInOpen, setSignInOpen] = useState(false);
-  const [signInEmail, setSignInEmail] = useState('');
   const [signInMessage, setSignInMessage] = useState('');
   const [toast, setToast] = useState('');
 
   useEffect(() => {
+    if (user || entriesSourceRef.current !== 'local') return;
+    localEntriesRef.current = entries;
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(entries)); } catch { /* local storage is optional */ }
-  }, [entries]);
+  }, [entries, user]);
+
+  useEffect(() => onAuthStateChanged(auth, setUser), []);
+
+  useEffect(() => {
+    if (!user) {
+      entriesSourceRef.current = 'local';
+      setEntries(localEntriesRef.current);
+      return undefined;
+    }
+    return onSnapshot(
+      collection(db, 'users', user.uid, 'entries'),
+      snapshot => {
+        entriesSourceRef.current = 'cloud';
+        setEntries(Object.fromEntries(snapshot.docs.map(item => [item.id, item.data()])));
+      },
+      () => setToast('Could not load your account entries')
+    );
+  }, [user]);
 
   useEffect(() => {
     const entry = entries[selectedKey] || blankEntry();
@@ -154,7 +182,7 @@ export default function App() {
   function removeSession(id) {
     setDraft(current => ({ ...current, sessions: current.sessions.length > 1 ? current.sessions.filter(session => session.id !== id) : [newSession()] }));
   }
-  function saveDay(event) {
+  async function saveDay(event) {
     event.preventDefault();
     const hasHalfFilled = draft.sessions.some(session => {
       const title = session.book.trim();
@@ -173,6 +201,19 @@ export default function App() {
       .map(session => ({ book: session.book.trim(), pages: Math.floor(Number(session.pages)) }));
     const entry = { sessions, note: draft.note.trim(), word: draft.word.trim(), meaning: draft.meaning.trim() };
     const hasContent = sessions.length || entry.note || entry.word || entry.meaning;
+    const savedPages = sessions.reduce((sum, session) => sum + session.pages, 0);
+    if (user) {
+      try {
+        const entryRef = doc(db, 'users', user.uid, 'entries', selectedKey);
+        if (hasContent) await setDoc(entryRef, entry);
+        else await deleteDoc(entryRef);
+        setFeedback('Saved to your account.');
+        setToast(`Day saved · ${savedPages} pages`);
+      } catch {
+        setFeedback('Could not save to your account. Check your connection and try again.');
+      }
+      return;
+    }
     setEntries(current => {
       const next = { ...current };
       if (hasContent) next[selectedKey] = entry;
@@ -180,21 +221,39 @@ export default function App() {
       return next;
     });
     setFeedback('Saved in this browser.');
-    setToast(`Day saved · ${sessions.reduce((sum, session) => sum + session.pages, 0)} pages`);
+    setToast(`Day saved · ${savedPages} pages`);
   }
-  function clearDay() {
+  async function clearDay() {
     if (entries[selectedKey] && !window.confirm('Clear this day’s reading entry?')) return;
-    setEntries(current => {
-      const next = { ...current };
-      delete next[selectedKey];
-      return next;
-    });
+    if (user) {
+      try {
+        await deleteDoc(doc(db, 'users', user.uid, 'entries', selectedKey));
+      } catch {
+        setFeedback('Could not clear this day in your account. Try again.');
+        return;
+      }
+    } else {
+      setEntries(current => {
+        const next = { ...current };
+        delete next[selectedKey];
+        return next;
+      });
+    }
     setDraft({ sessions: [newSession()], note: '', word: '', meaning: '' });
     setFeedback('');
     setToast('Day cleared');
   }
-  function clearHistory() {
-    if (!window.confirm('Clear all reading history stored in this browser? This cannot be undone.')) return;
+  async function clearHistory() {
+    if (!window.confirm('Clear all reading history? This cannot be undone.')) return;
+    if (user) {
+      try {
+        const snapshot = await getDocs(collection(db, 'users', user.uid, 'entries'));
+        await Promise.all(snapshot.docs.map(item => deleteDoc(item.ref)));
+      } catch {
+        setToast('Could not clear your account history');
+        return;
+      }
+    }
     setEntries({});
     setDraft({ sessions: [newSession()], note: '', word: '', meaning: '' });
     setToast('Reading history cleared');
@@ -215,9 +274,21 @@ export default function App() {
       setLookupFeedback('Could not retrieve a definition. Add it manually.');
     }
   }
-  function submitSignIn(event) {
-    event.preventDefault();
-    setSignInMessage('Authentication is not connected in this prototype. Your entries are stored locally in this browser.');
+  async function signInWithGoogle() {
+    setSignInMessage('');
+    try {
+      await signInWithPopup(auth, googleProvider);
+      setSignInOpen(false);
+    } catch (error) {
+      if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') return;
+      setSignInMessage(error.code === 'auth/operation-not-allowed'
+        ? 'Google sign-in is not enabled for this Firebase project yet.'
+        : 'Sign-in failed. Try again.');
+    }
+  }
+  async function signOutUser() {
+    await signOut(auth);
+    setToast('Signed out · entries stay on this device');
   }
 
   return (
@@ -225,9 +296,13 @@ export default function App() {
       <header className="topbar">
         <div className="edition"><strong>Reading practice</strong><br />No. 07 / Independent</div>
         <div className="mini-mark" aria-label="Seven Pages Club">seven pages</div>
-        <button className="signin-link" onClick={() => { setSignInOpen(true); setSignInMessage(''); }}>
-          Sign in <ArrowUpRight size={12} strokeWidth={1.5} aria-hidden="true" />
-        </button>
+        {user ? (
+          <button className="signin-link" onClick={signOutUser} title={user.email || 'Signed in'}>Sign out</button>
+        ) : (
+          <button className="signin-link" onClick={() => { setSignInOpen(true); setSignInMessage(''); }}>
+            Sign in <ArrowUpRight size={12} strokeWidth={1.5} aria-hidden="true" />
+          </button>
+        )}
       </header>
 
       <main>
@@ -281,7 +356,7 @@ export default function App() {
               <div className="legend-item"><span className="legend-symbol goal" />7 pages</div>
               <div className="legend-item"><span className="legend-symbol over" />8+ pages</div>
             </div>
-            <div className="history-control"><span>{Object.keys(entries).length ? 'Example history · stored in this browser' : 'No reading history yet'}</span><button className="text-button" onClick={clearHistory}>Clear history</button></div>
+            <div className="history-control"><span>{user ? (user.email || 'Synced to your account') : Object.keys(entries).length ? 'Stored in this browser' : 'No reading history yet'}</span><button className="text-button" onClick={clearHistory}>Clear history</button></div>
           </section>
 
           <section className="day-panel" aria-labelledby="dayPanelTitle">
@@ -345,12 +420,8 @@ export default function App() {
           <button className="modal-close" onClick={() => setSignInOpen(false)} aria-label="Close sign in"><X size={17} /></button>
           <div className="eyebrow">A place to return to</div>
           <h2 id="signInHeading">Sign in</h2>
-          <p>Your reading record should follow you. Account sign-in is a visual prototype here; no account is created and no email is sent.</p>
-          <form onSubmit={submitSignIn}>
-            <label className="field-label" htmlFor="signInEmail">Email address</label>
-            <input className="field modal-email" id="signInEmail" type="email" required placeholder="you@example.com" value={signInEmail} onChange={event => setSignInEmail(event.target.value)} />
-            <button className="save-button" type="submit"><span>Continue</span><ArrowUpRight className="arrow" size={16} strokeWidth={1.4} /></button>
-          </form>
+          <p>Sign in to sync your reading record across devices. Signed out, entries stay in this browser.</p>
+          <button className="save-button" type="button" onClick={signInWithGoogle}><span>Continue with Google</span><ArrowUpRight className="arrow" size={16} strokeWidth={1.4} /></button>
           <div className="modal-message" aria-live="polite">{signInMessage}</div>
         </section>
       </div>}
