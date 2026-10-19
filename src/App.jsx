@@ -151,6 +151,8 @@ export default function App() {
   }, [panelOpen]);
 
   const daysInMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 0).getDate();
+  const tailDays = daysInMonth % 7;
+  const tailStart = daysInMonth - tailDays + 1;
   const calendarCells = useMemo(() => {
     const cells = [];
     for (let day = 1; day <= daysInMonth; day++) {
@@ -343,7 +345,7 @@ export default function App() {
                 if (cell.key === selectedKey) classes.push('is-selected');
                 if (cell.key === todayKey) classes.push('is-today');
                 return (
-                  <div className="day-cell" key={cell.key}>
+                  <div className="day-cell" key={cell.key} style={tailDays && cell.day === tailStart ? { gridColumnStart: 8 - tailDays } : undefined}>
                     <button type="button" className={classes.join(' ')} disabled={future}
                       aria-label={`${cell.date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}: ${total} pages${cell.key === selectedKey ? ', selected' : ''}`}
                       aria-pressed={cell.key === selectedKey}
