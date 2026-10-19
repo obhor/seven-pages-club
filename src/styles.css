@@ -130,7 +130,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 1px
 .mark-low { border: 2px solid var(--line-strong); border-radius: 50%; color: var(--muted); }
 .mark-empty { color: #b8b7b0; font-size: 9px; }
 .mark-today { position: relative; font-size: 9px; color: var(--ink); }
-.index-star { position: absolute; top: -5px; right: -3px; font-size: 9px; line-height: 1; }
+.index-star { position: absolute; top: -2px; right: 0; font-size: 9px; line-height: 1; }
 
 .drawer-backdrop { position: fixed; inset: 0; z-index: 100; background: rgba(23, 23, 21, .18); }
 .day-panel {
