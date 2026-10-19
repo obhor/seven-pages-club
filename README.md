@@ -39,4 +39,4 @@ Console steps for the `pages-book-club` project:
 - The first launch seeds illustrative reading history so the date-state design is visible. Use **Clear history** to remove it.
 - Local entries are not uploaded on sign-in; the account starts from its own cloud data.
 - `prototype/index.html` is the original self-contained static prototype.
-- The interface uses a heavy Helvetica Neue-style sans for display type and Space Mono for utility text.
+- Display type uses Goudy Bookletter 1911, day numbers use a heavy Helvetica Neue-style sans, and Space Mono is used for utility text.
