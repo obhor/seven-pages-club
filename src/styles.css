@@ -42,7 +42,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 1px
 .page-shell { margin: 0 auto; padding: 0 4vw 42px; }
 
 .masthead { position: relative; text-align: center; padding: 26px 0 22px; border-bottom: 1px solid var(--line); }
-.hero-title { margin: 0; display: flex; align-items: center; justify-content: center; gap: .12em; font-family: var(--display); font-size: clamp(52px, 7vw, 86px); font-weight: 400; line-height: .98; letter-spacing: -.055em; text-shadow: .018em 0 currentColor, -.012em 0 currentColor, 0 .008em currentColor; -webkit-text-stroke: .12px currentColor; }
+.hero-title { margin: 0; display: flex; align-items: center; justify-content: center; gap: .12em; font-family: var(--display); font-size: clamp(42px, 5.6vw, 69px); font-weight: 400; line-height: .98; letter-spacing: -.055em; text-shadow: .018em 0 currentColor, -.012em 0 currentColor, 0 .008em currentColor; -webkit-text-stroke: .12px currentColor; }
 .title-mark {
   flex-shrink: 0;
   display: inline-flex;
@@ -62,8 +62,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 1px
 }
 .title-mark > span { display: inline-block; transform: translateY(.08em) scaleX(.92); }
 .commit-mark { position: fixed; top: 14px; left: 14px; font-family: var(--sans); font-weight: 700; font-size: 10px; letter-spacing: .08em; }
-.account-links { position: absolute; top: 50%; right: 0; transform: translateY(-50%); display: flex; gap: 24px; }
-.account-link { border: 0; border-bottom: 1px solid transparent; background: none; padding: 3px 0; cursor: pointer; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+.account-links { position: fixed; top: 14px; right: 14px; }
+.account-link { border: 0; border-bottom: 1px solid transparent; background: none; padding: 0; cursor: pointer; font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .08em; line-height: 1; text-transform: uppercase; }
 .account-link:hover { border-bottom-color: var(--ink); }
 
 .metrics-strip { display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: 1px solid var(--line); }
@@ -206,22 +206,21 @@ textarea.field:focus { border-color: var(--ink); }
 .toast.visible { opacity: 1; transform: translate(-50%, 0); }
 
 @media (min-width: 1024px) {
-  .hero-title { font-size: clamp(72px, 7vw, 124px); }
+  .hero-title { font-size: clamp(58px, 5.6vw, 99px); }
   .metric { min-height: clamp(104px, 6.5vw, 132px); }
   .metric-label { font-size: clamp(9px, .6vw, 11px); }
   .metric-value { font-size: clamp(38px, 2.6vw, 50px); }
 }
 @media (max-width: 930px) {
   .page-shell { padding: 0 28px 32px; }
-  .account-links { gap: 18px; }
   .session-row { grid-template-columns: minmax(0, 1fr) 72px 18px; gap: 7px; }
 }
 @media (max-width: 720px) {
   .page-shell { padding: 0 18px 26px; }
   .masthead { padding: 22px 0 20px; }
   .commit-mark { top: 10px; left: 10px; }
-  .hero-title { font-size: clamp(42px, 11vw, 62px); }
-  .account-links { position: static; transform: none; justify-content: center; margin-top: 16px; }
+  .hero-title { font-size: clamp(34px, 8.8vw, 50px); }
+  .account-links { top: 10px; right: 10px; }
   .metric { min-height: 78px; padding: 12px 8px; }
   .metric-label { font-size: 7px; letter-spacing: .06em; text-align: center; }
   .metric-value { font-size: 26px; }
@@ -239,7 +238,7 @@ textarea.field:focus { border-color: var(--ink); }
 }
 @media (max-width: 380px) {
   .page-shell { padding: 0 12px 22px; }
-  .hero-title { font-size: 12vw; }
+  .hero-title { font-size: 9.6vw; }
   .day-button { width: 39px; height: 39px; font-size: 24px; border-width: 4px; }
   .calendar-grid { grid-template-columns: repeat(7, 42px); gap: 4px 2px; }
   .calendar-section { --cal-w: 306px; }

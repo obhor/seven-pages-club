@@ -313,14 +313,7 @@ export default function App() {
         <span className="commit-mark" title={`${__COMMIT_COUNT__} commits`}>{__COMMIT_COUNT__}</span>
         <h1 className="hero-title" id="page-title"><span className="title-mark" aria-label="Seven"><span>7</span></span> Pages Book Club</h1>
         <nav className="account-links" aria-label="Account">
-          {user ? (
-            <button className="account-link" onClick={signOutUser} title={user.email || undefined}>Sign out</button>
-          ) : (
-            <>
-              <button className="account-link" onClick={() => openAuth('signin')}>Sign in</button>
-              <button className="account-link" onClick={() => openAuth('signup')}>Sign up</button>
-            </>
-          )}
+          <button className="account-link" onClick={user ? signOutUser : () => openAuth('signin')} title={user?.email || 'Sign in'}>Account</button>
         </nav>
       </header>
 
