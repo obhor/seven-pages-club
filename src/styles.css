@@ -52,12 +52,12 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 1px
 .icon-button { width: 30px; height: 30px; border: 1px solid transparent; background: transparent; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; color: var(--muted); transition: border-color .18s, color .18s; }
 .icon-button:hover:not(:disabled) { border-color: var(--line-strong); color: var(--ink); }
 .icon-button:disabled { opacity: .25; cursor: default; }
-.calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); justify-items: center; gap: 4px 2px; max-width: 880px; margin: 0 auto; }
-.day-cell { min-width: 0; width: 100%; display: flex; justify-content: center; }
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 66px); justify-content: center; justify-items: center; gap: 6px 4px; margin: 0 auto; }
+.day-cell { min-width: 0; display: flex; justify-content: center; }
 .day-button {
-  width: clamp(56px, 6.2vw, 88px);
-  height: clamp(56px, 6.2vw, 88px);
-  border: 1px solid transparent;
+  width: 60px;
+  height: 60px;
+  border: 6px solid transparent;
   border-radius: 50%;
   background: transparent;
   color: var(--ink);
@@ -67,19 +67,20 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 1px
   align-items: center;
   justify-content: center;
   font-family: var(--sans);
-  font-size: clamp(20px, 2.6vw, 38px);
-  font-weight: 800;
+  font-size: 38px;
+  font-weight: 900;
   letter-spacing: -.02em;
   line-height: 1;
+  -webkit-text-stroke: .5px currentColor;
   transition: transform .18s cubic-bezier(.2,.7,.2,1), background .18s, border-color .18s, color .18s;
 }
 .day-button:hover:not(:disabled) { border-color: var(--line-strong); transform: translateY(-2px); }
 .day-button.is-empty { color: #b8b7b0; }
 .day-button.is-empty:hover:not(:disabled) { color: var(--ink); }
-.day-button.is-low { border: 4.5px solid var(--line-strong); color: var(--muted); }
-.day-button.is-goal, .day-button.is-over { background: transparent; border: 4.5px solid var(--ink); color: var(--ink); }
+.day-button.is-low { border: 6px solid var(--line-strong); color: var(--muted); }
+.day-button.is-goal, .day-button.is-over { background: transparent; border: 6px solid var(--ink); color: var(--ink); }
 .day-button.is-selected { box-shadow: 0 0 0 2px var(--paper), 0 0 0 3px var(--ink); }
-.day-button.is-today:not(.is-selected) { text-decoration: underline; text-underline-offset: 6px; text-decoration-thickness: 1px; }
+.day-button.is-today:not(.is-selected) { text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1px; }
 .day-button:disabled { cursor: default; pointer-events: none; }
 
 .calendar-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 24px; border-top: 1px solid var(--line); max-width: 1080px; margin: 32px auto 0; padding-top: 18px; }
@@ -180,9 +181,9 @@ textarea.field:focus { border-color: var(--ink); }
   .metric-value { font-size: 26px; }
   .calendar-section { padding-top: 24px; }
   .month-switch { margin-bottom: 20px; }
-  .calendar-grid { gap: 6px 2px; }
-  .day-button { width: clamp(38px, 8.6vw, 56px); height: clamp(38px, 8.6vw, 56px); font-size: clamp(14px, 3.3vw, 22px); border-width: 3.5px; }
-  .day-button.is-low, .day-button.is-goal, .day-button.is-over { border-width: 3.5px; }
+  .calendar-grid { grid-template-columns: repeat(7, 46px); gap: 5px 3px; }
+  .day-button { width: 43px; height: 43px; font-size: 27px; border-width: 4.5px; }
+  .day-button.is-low, .day-button.is-goal, .day-button.is-over { border-width: 4.5px; }
   .calendar-legend { gap: 10px 15px; margin-top: 24px; }
   .day-panel { width: 100%; border-left: 0; padding: 28px 22px 34px; }
   .footer { flex-direction: column; align-items: center; gap: 9px; text-align: center; }
@@ -192,7 +193,7 @@ textarea.field:focus { border-color: var(--ink); }
   .page-shell { padding: 0 12px 22px; }
   .hero-title { font-size: 12vw; }
   .month-name { min-width: 74px; font-size: 11px; }
-  .day-button { width: 34px; height: 34px; font-size: 13px; }
-  .calendar-grid { gap: 7px 3px; }
+  .day-button { width: 39px; height: 39px; font-size: 24px; border-width: 4px; }
+  .calendar-grid { grid-template-columns: repeat(7, 42px); gap: 4px 2px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }
