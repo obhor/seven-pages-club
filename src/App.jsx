@@ -19,7 +19,7 @@ function fromKey(key) {
   return new Date(y, m - 1, d);
 }
 function formatMonth(date) {
-  return `${date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()} ${String(date.getFullYear()).slice(-2)}`;
+  return `${date.toLocaleDateString('en-US', { month: 'long' })} ${String(date.getFullYear()).slice(-2)}`;
 }
 function formatSelectedDate(key) {
   const date = fromKey(key);
@@ -333,9 +333,9 @@ export default function App() {
 
         <section className="calendar-section" aria-label="Reading calendar">
             <div className="month-switch">
-              <button className="icon-button" onClick={() => changeMonth(-1)} aria-label="Previous month"><ChevronLeft size={16} strokeWidth={1.3} /></button>
+              <button className="icon-button" onClick={() => changeMonth(-1)} aria-label="Previous month"><ChevronLeft size={18} strokeWidth={3.2} /></button>
               <div className="month-name">{formatMonth(viewMonth)}</div>
-              <button className="icon-button" onClick={() => changeMonth(1)} aria-label="Next month" disabled={isFutureMonth(viewMonth.getFullYear(), viewMonth.getMonth() + 1)}><ChevronRight size={16} strokeWidth={1.3} /></button>
+              <button className="icon-button" onClick={() => changeMonth(1)} aria-label="Next month" disabled={isFutureMonth(viewMonth.getFullYear(), viewMonth.getMonth() + 1)}><ChevronRight size={18} strokeWidth={3.2} /></button>
             </div>
             <div className="calendar-grid" aria-label="Calendar dates">
               {calendarCells.map(cell => {

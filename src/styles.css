@@ -72,13 +72,13 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 1px
 .metric-label { color: var(--muted); font-size: 9px; text-transform: uppercase; letter-spacing: .11em; }
 .metric-value { font-family: var(--display); font-size: 34px; line-height: 1.1; letter-spacing: -.02em; }
 
-.calendar-section { padding: 30px 0 6px; }
-.month-switch { display: flex; align-items: center; justify-content: center; gap: 18px; margin-bottom: 28px; }
-.month-name { font-size: 12px; text-transform: uppercase; letter-spacing: .14em; min-width: 84px; text-align: center; }
-.icon-button { width: 30px; height: 30px; border: 1px solid transparent; background: transparent; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; color: var(--muted); transition: border-color .18s, color .18s; }
+.calendar-section { padding: 30px 0 6px; --cal-w: 468px; }
+.month-switch { width: var(--cal-w); max-width: 100%; display: flex; align-items: center; justify-content: flex-end; gap: 4px; margin: 0 auto 28px; }
+.month-name { font-family: var(--sans); font-size: 18px; font-weight: 700; letter-spacing: -.01em; text-align: right; white-space: nowrap; }
+.icon-button { width: 28px; height: 28px; border: 1px solid transparent; background: transparent; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; color: var(--ink); transition: border-color .18s, color .18s; }
 .icon-button:hover:not(:disabled) { border-color: var(--line-strong); color: var(--ink); }
 .icon-button:disabled { opacity: .25; cursor: default; }
-.calendar-grid { display: grid; grid-template-columns: repeat(7, 60px); justify-content: center; justify-items: center; gap: 6px 8px; width: 100%; margin: 0 auto; }
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 60px); justify-content: center; justify-items: center; gap: 6px 8px; width: var(--cal-w); max-width: 100%; margin: 0 auto; }
 .day-cell { min-width: 0; display: flex; justify-content: center; }
 .day-button {
   position: relative;
@@ -225,7 +225,7 @@ textarea.field:focus { border-color: var(--ink); }
   .metric { min-height: 78px; padding: 12px 8px; }
   .metric-label { font-size: 7px; letter-spacing: .06em; text-align: center; }
   .metric-value { font-size: 26px; }
-  .calendar-section { padding-top: 24px; }
+  .calendar-section { padding-top: 24px; --cal-w: 340px; }
   .month-switch { margin-bottom: 20px; }
   .calendar-grid { grid-template-columns: repeat(7, 46px); gap: 5px 3px; }
   .day-button { width: 43px; height: 43px; font-size: 27px; border-width: 4.5px; }
@@ -240,8 +240,8 @@ textarea.field:focus { border-color: var(--ink); }
 @media (max-width: 380px) {
   .page-shell { padding: 0 12px 22px; }
   .hero-title { font-size: 12vw; }
-  .month-name { min-width: 74px; font-size: 11px; }
   .day-button { width: 39px; height: 39px; font-size: 24px; border-width: 4px; }
   .calendar-grid { grid-template-columns: repeat(7, 42px); gap: 4px 2px; }
+  .calendar-section { --cal-w: 306px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }
