@@ -74,7 +74,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 1px
 
 .calendar-section { padding: 30px 0 6px; --cal-w: 468px; }
 .month-switch { width: var(--cal-w); max-width: 100%; display: flex; align-items: center; justify-content: flex-end; gap: 4px; margin: 0 auto 28px; }
-.month-name { font-family: var(--sans); font-size: 18px; font-weight: 700; letter-spacing: .01em; line-height: 1; text-transform: uppercase; text-align: right; white-space: nowrap; }
+.month-name { font-family: var(--sans); font-size: 18px; font-weight: 700; letter-spacing: .01em; line-height: 1; text-transform: uppercase; text-align: right; white-space: nowrap; transform: translateY(2px); }
 .icon-button { width: 28px; height: 28px; border: 1px solid transparent; background: transparent; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; color: var(--ink); transition: border-color .18s, color .18s; }
 .icon-button:hover:not(:disabled) { border-color: var(--line-strong); color: var(--ink); }
 .icon-button:disabled { opacity: .25; cursor: default; }
