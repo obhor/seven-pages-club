@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowUpRight, ChevronLeft, ChevronRight, Plus, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, X } from 'lucide-react';
 import { GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
 import { collection, deleteDoc, doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { auth, db } from './firebase.js';
@@ -21,9 +21,12 @@ function fromKey(key) {
 function formatMonth(date) {
   return `${date.toLocaleDateString('en-US', { month: 'long' })} ${String(date.getFullYear()).slice(-2)}`;
 }
-function formatSelectedDate(key) {
+function formatReceiptStamp(key) {
   const date = fromKey(key);
-  return `${date.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase()} / ${date.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase()}`;
+  const weekday = date.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
+  const rest = `${date.getDate()} ${date.toLocaleDateString('en-US', { month: 'long' })} ${date.getFullYear()}`.toUpperCase();
+  const clock = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+  return `${weekday}, ${rest} @ ${clock}`;
 }
 function totalPages(entry) {
   return (entry?.sessions || []).reduce((sum, session) => sum + Math.max(0, Number(session.pages) || 0), 0);
@@ -341,48 +344,48 @@ export default function App() {
         <div className="drawer-backdrop" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) setPanelOpen(false); }}>
           <section className="day-panel" role="dialog" aria-modal="true" aria-labelledby="dayPanelTitle">
             <button className="drawer-close" onClick={() => setPanelOpen(false)} aria-label="Close daily entry"><X size={18} strokeWidth={1.2} /></button>
-            <div className="panel-top">
-              <div>
-                <div className="date-overline">{formatSelectedDate(selectedKey)}</div>
-                <h2 className="date-large" id="dayPanelTitle">The daily entry</h2>
-              </div>
-              <div className={`day-status state-${liveState}`}>{liveState === 'empty' ? 'Not logged' : liveState === 'low' ? 'Below goal' : liveState === 'goal' ? 'Goal complete' : 'Beyond goal'}</div>
+            <div className="receipt-head">
+              <h2 className="receipt-title" id="dayPanelTitle">Entry</h2>
+              <p className="receipt-stamp">{formatReceiptStamp(selectedKey)}</p>
+              <p className={`receipt-status state-${liveState}`}>{liveState === 'empty' ? 'Not logged' : liveState === 'low' ? 'Below goal' : liveState === 'goal' ? 'Goal complete' : 'Beyond goal'} · {liveTotal} / {GOAL} pages</p>
             </div>
-            <div className="progress-area">
-              <div className="progress-copy"><span>{liveTotal} / {GOAL} pages</span><span className="muted">{liveTotal < GOAL ? `${GOAL - liveTotal} to go` : liveTotal === GOAL ? 'Goal met' : `${liveTotal - GOAL} beyond goal`}</span></div>
-              <div className="progress-track"><div className="progress-fill" style={{ width: `${Math.min(100, liveTotal / GOAL * 100)}%` }} /></div>
-            </div>
-            <div className="form-rule" />
+            <div className="receipt-rule" />
             <form onSubmit={saveDay}>
-              <div className="form-section-heading"><h3>Reading sessions</h3><span className="section-kicker">Required</span></div>
-              <div>
-                {draft.sessions.map((session, index) => (
-                  <div className="session-row" key={session.id}>
-                    <div><label className="field-label" htmlFor={`book-${session.id}`}>Book title</label><input id={`book-${session.id}`} className="field" maxLength={140} placeholder="What are you reading?" value={session.book} onChange={event => updateSession(session.id, 'book', event.target.value)} /></div>
-                    <div><label className="field-label" htmlFor={`pages-${session.id}`}>Pages read</label><input id={`pages-${session.id}`} className="field" type="number" min="0" max="99999" step="1" placeholder="0" value={session.pages} onChange={event => updateSession(session.id, 'pages', event.target.value)} /></div>
-                    <button type="button" className="remove-session" aria-label={`Remove book session ${index + 1}`} title="Remove session" onClick={() => removeSession(session.id)}><X size={14} strokeWidth={1.25} /></button>
+              {draft.sessions.map((session, index) => (
+                <div className="receipt-session" key={session.id}>
+                  <div className="receipt-line">
+                    <label className="receipt-label" htmlFor={`book-${session.id}`}>Book Title:</label>
+                    <input id={`book-${session.id}`} className="receipt-input" maxLength={140} placeholder="What are you reading?" value={session.book} onChange={event => updateSession(session.id, 'book', event.target.value)} />
                   </div>
-                ))}
-              </div>
-              <button className="add-book" type="button" onClick={addSession}><Plus size={11} strokeWidth={1.4} /> Add another book</button>
+                  <div className="receipt-line">
+                    <label className="receipt-label" htmlFor={`pages-${session.id}`}>Pages Read:</label>
+                    <input id={`pages-${session.id}`} className="receipt-input" type="number" min="0" max="99999" step="1" placeholder="0" value={session.pages} onChange={event => updateSession(session.id, 'pages', event.target.value)} />
+                  </div>
+                  <button type="button" className="remove-session" aria-label={`Remove book session ${index + 1}`} title="Remove session" onClick={() => removeSession(session.id)}><X size={13} strokeWidth={1.3} /></button>
+                </div>
+              ))}
+              <button className="add-book" type="button" onClick={addSession}><Plus size={11} strokeWidth={1.5} /> Add another book</button>
 
-              <div className="optional-fields">
-                <div className="optional-title"><h3>Keep a thought</h3><span>Optional</span></div>
-                <div className="optional-field">
-                  <label className="field-label" htmlFor="dayNote">What stayed with you?</label>
-                  <textarea className="field" id="dayNote" placeholder="A thought, a question, a line worth remembering…" rows="3" value={draft.note} onChange={event => setDraft(current => ({ ...current, note: event.target.value }))} />
-                </div>
-                <div className="optional-field">
-                  <label className="field-label" htmlFor="wordLearned">A word you learned</label>
-                  <div className="word-row">
-                    <div className="word-input-wrap"><input className="field" id="wordLearned" placeholder="e.g. liminal" autoComplete="off" value={draft.word} onChange={event => setDraft(current => ({ ...current, word: event.target.value }))} /><button type="button" className="lookup-button" onClick={lookupWord}>Look up ↗</button></div>
-                    <input className="field definition-field" aria-label="Word meaning" placeholder="Meaning, in your words" value={draft.meaning} onChange={event => setDraft(current => ({ ...current, meaning: event.target.value }))} />
-                  </div>
-                  <div className="save-feedback" aria-live="polite">{lookupFeedback}</div>
-                </div>
+              <div className="receipt-note-block">
+                <label className="receipt-label" htmlFor="dayNote">Note:</label>
+                <textarea className="receipt-note" id="dayNote" rows="2" placeholder="A thought, a question, a line worth remembering…" value={draft.note} onChange={event => setDraft(current => ({ ...current, note: event.target.value }))} />
               </div>
-              <div className="form-actions">
-                <button className="save-button" type="submit"><span>Save day</span><ArrowUpRight className="arrow" size={16} strokeWidth={1.4} /></button>
+
+              <div className="receipt-word-block">
+                <div className="receipt-line">
+                  <label className="receipt-label" htmlFor="wordLearned">Word Learned:</label>
+                  <input className="receipt-input" id="wordLearned" placeholder="e.g. liminal" autoComplete="off" value={draft.word} onChange={event => setDraft(current => ({ ...current, word: event.target.value }))} />
+                </div>
+                <button type="button" className="lookup-button" onClick={lookupWord}>Look up ↗</button>
+                <div className="receipt-line">
+                  <label className="receipt-label" htmlFor="wordMeaning">Meaning:</label>
+                  <input className="receipt-input" id="wordMeaning" placeholder="In your own words" value={draft.meaning} onChange={event => setDraft(current => ({ ...current, meaning: event.target.value }))} />
+                </div>
+                <div className="save-feedback" aria-live="polite">{lookupFeedback}</div>
+              </div>
+
+              <div className="receipt-actions">
+                <button className="save-button" type="submit"><span>Save</span></button>
                 <button className="clear-day" type="button" onClick={clearDay}>Clear</button>
               </div>
               <div className="save-feedback" aria-live="polite">{feedback}</div>
