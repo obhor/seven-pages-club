@@ -25,8 +25,7 @@ function formatReceiptStamp(key) {
   const date = fromKey(key);
   const weekday = date.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
   const rest = `${date.getDate()} ${date.toLocaleDateString('en-US', { month: 'long' })} ${date.getFullYear()}`.toUpperCase();
-  const clock = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
-  return `${weekday}, ${rest} @ ${clock}`;
+  return `${weekday}, ${rest}`;
 }
 function totalPages(entry) {
   return (entry?.sessions || []).reduce((sum, session) => sum + Math.max(0, Number(session.pages) || 0), 0);
@@ -38,10 +37,10 @@ function stateFor(total) {
   return 'over';
 }
 function blankEntry() {
-  return { sessions: [], note: '', word: '', meaning: '' };
+  return { sessions: [] };
 }
 function newSession(book = '', pages = '') {
-  return { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, book, pages };
+  return { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, book, pages, note: '' };
 }
 function makeSampleEntries(referenceDate) {
   const sample = {};
@@ -51,11 +50,7 @@ function makeSampleEntries(referenceDate) {
     const count = pages[day - 1];
     if (!count) continue;
     const key = toKey(new Date(referenceDate.getFullYear(), referenceDate.getMonth(), day));
-    sample[key] = { sessions: [newSession(books[(day - 1) % books.length], count)], note: '', word: '', meaning: '' };
-    if (day === 13) {
-      sample[key].word = 'liminal';
-      sample[key].meaning = 'At a threshold or in-between state.';
-    }
+    sample[key] = { sessions: [newSession(books[(day - 1) % books.length], count)] };
   }
   return sample;
 }
@@ -92,9 +87,9 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [selectedKey, setSelectedKey] = useState(null);
   const [viewMonth, setViewMonth] = useState(new Date(now.getFullYear(), now.getMonth(), 1));
-  const [draft, setDraft] = useState({ sessions: [newSession()], note: '', word: '', meaning: '' });
+  const [draft, setDraft] = useState({ sessions: [newSession()] });
   const [feedback, setFeedback] = useState('');
-  const [lookupFeedback, setLookupFeedback] = useState('');
+  const formRef = useRef(null);
   const [signInOpen, setSignInOpen] = useState(false);
   const [authMode, setAuthMode] = useState('signin');
   const [signInMessage, setSignInMessage] = useState('');
@@ -127,13 +122,25 @@ export default function App() {
 
   useEffect(() => {
     const entry = entries[selectedKey] || blankEntry();
-    setDraft({
-      sessions: entry.sessions?.length ? entry.sessions.map(session => ({ ...session, id: session.id || newSession().id, pages: String(session.pages ?? '') })) : [newSession()],
-      note: entry.note || '', word: entry.word || '', meaning: entry.meaning || ''
-    });
+    const sessions = entry.sessions?.length
+      ? entry.sessions.map((session, index) => ({
+          ...session,
+          id: session.id || newSession().id,
+          pages: String(session.pages ?? ''),
+          note: session.note || (index === 0 ? entry.note || '' : '')
+        }))
+      : [{ ...newSession(), note: entry.note || '' }];
+    setDraft({ sessions });
     setFeedback('');
-    setLookupFeedback('');
   }, [selectedKey, entries]);
+
+  useEffect(() => {
+    if (!formRef.current) return;
+    formRef.current.querySelectorAll('.receipt-note').forEach(note => {
+      note.style.height = 'auto';
+      note.style.height = `${note.scrollHeight}px`;
+    });
+  }, [draft.sessions, panelOpen]);
 
   useEffect(() => {
     if (!toast) return undefined;
@@ -171,8 +178,6 @@ export default function App() {
     return { pages: dates.reduce((sum, key) => sum + totalPages(entries[key]), 0), days: dates.length };
   }, [entries, viewMonth]);
 
-  const liveTotal = draft.sessions.reduce((sum, session) => sum + Math.max(0, Math.floor(Number(session.pages) || 0)), 0);
-  const liveState = stateFor(liveTotal);
   const isFutureMonth = (year, month) => new Date(year, month, 1) > new Date(now.getFullYear(), now.getMonth(), 1);
 
   function selectDate(key) {
@@ -201,7 +206,7 @@ export default function App() {
     const hasHalfFilled = draft.sessions.some(session => {
       const title = session.book.trim();
       const rawPages = String(session.pages).trim();
-      if (!title && !rawPages) return false;
+      if (!title && !rawPages && !session.note.trim()) return false;
       if (!title || !rawPages) return true;
       const pages = Number(rawPages);
       return !Number.isFinite(pages) || pages <= 0;
@@ -212,9 +217,9 @@ export default function App() {
     }
     const sessions = draft.sessions
       .filter(session => session.book.trim() && String(session.pages).trim() && Number(session.pages) > 0)
-      .map(session => ({ book: session.book.trim(), pages: Math.floor(Number(session.pages)) }));
-    const entry = { sessions, note: draft.note.trim(), word: draft.word.trim(), meaning: draft.meaning.trim() };
-    const hasContent = sessions.length || entry.note || entry.word || entry.meaning;
+      .map(session => ({ book: session.book.trim(), pages: Math.floor(Number(session.pages)), note: session.note.trim() }));
+    const entry = { sessions };
+    const hasContent = sessions.length > 0;
     const savedPages = sessions.reduce((sum, session) => sum + session.pages, 0);
     if (user) {
       try {
@@ -236,42 +241,6 @@ export default function App() {
     });
     setFeedback('Saved in this browser.');
     setToast(`Day saved · ${savedPages} pages`);
-  }
-  async function clearDay() {
-    if (entries[selectedKey] && !window.confirm('Clear this day’s reading entry?')) return;
-    if (user) {
-      try {
-        await deleteDoc(doc(db, 'users', user.uid, 'entries', selectedKey));
-      } catch {
-        setFeedback('Could not clear this day in your account. Try again.');
-        return;
-      }
-    } else {
-      setEntries(current => {
-        const next = { ...current };
-        delete next[selectedKey];
-        return next;
-      });
-    }
-    setDraft({ sessions: [newSession()], note: '', word: '', meaning: '' });
-    setFeedback('');
-    setToast('Day cleared');
-  }
-  async function lookupWord() {
-    const word = draft.word.trim();
-    if (!word) { setLookupFeedback('Enter a word first.'); return; }
-    setLookupFeedback('Looking up a dictionary definition…');
-    try {
-      const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
-      if (!response.ok) throw new Error('No entry');
-      const data = await response.json();
-      const definitions = (data[0]?.meanings || []).flatMap(item => item.definitions || []).map(item => item.definition).filter(Boolean);
-      if (!definitions.length) throw new Error('No definition');
-      setDraft(current => ({ ...current, meaning: current.meaning.trim() ? current.meaning : definitions[0] }));
-      setLookupFeedback('Definition added. Rephrase it in your own words if that helps it stick.');
-    } catch {
-      setLookupFeedback('Could not retrieve a definition. Add it manually.');
-    }
   }
   function openAuth(mode) {
     setAuthMode(mode);
@@ -347,46 +316,29 @@ export default function App() {
             <div className="receipt-head">
               <h2 className="receipt-title" id="dayPanelTitle">Entry</h2>
               <p className="receipt-stamp">{formatReceiptStamp(selectedKey)}</p>
-              <p className={`receipt-status state-${liveState}`}>{liveState === 'empty' ? 'Not logged' : liveState === 'low' ? 'Below goal' : liveState === 'goal' ? 'Goal complete' : 'Beyond goal'} · {liveTotal} / {GOAL} pages</p>
             </div>
-            <div className="receipt-rule" />
-            <form onSubmit={saveDay}>
+            <form onSubmit={saveDay} ref={formRef}>
               {draft.sessions.map((session, index) => (
                 <div className="receipt-session" key={session.id}>
-                  <div className="receipt-line">
+                  <div className="receipt-field">
                     <label className="receipt-label" htmlFor={`book-${session.id}`}>Book Title:</label>
                     <input id={`book-${session.id}`} className="receipt-input" maxLength={140} placeholder="What are you reading?" value={session.book} onChange={event => updateSession(session.id, 'book', event.target.value)} />
                   </div>
-                  <div className="receipt-line">
+                  <div className="receipt-field">
                     <label className="receipt-label" htmlFor={`pages-${session.id}`}>Pages Read:</label>
                     <input id={`pages-${session.id}`} className="receipt-input" type="number" min="0" max="99999" step="1" placeholder="0" value={session.pages} onChange={event => updateSession(session.id, 'pages', event.target.value)} />
+                  </div>
+                  <div className="receipt-field receipt-field-note">
+                    <label className="receipt-label" htmlFor={`note-${session.id}`}>Note:</label>
+                    <textarea className="receipt-note" id={`note-${session.id}`} rows="2" placeholder="A thought, a question, a line worth remembering…" value={session.note} onChange={event => updateSession(session.id, 'note', event.target.value)} />
                   </div>
                   <button type="button" className="remove-session" aria-label={`Remove book session ${index + 1}`} title="Remove session" onClick={() => removeSession(session.id)}><X size={13} strokeWidth={1.3} /></button>
                 </div>
               ))}
               <button className="add-book" type="button" onClick={addSession}><Plus size={11} strokeWidth={1.5} /> Add another book</button>
 
-              <div className="receipt-note-block">
-                <label className="receipt-label" htmlFor="dayNote">Note:</label>
-                <textarea className="receipt-note" id="dayNote" rows="2" placeholder="A thought, a question, a line worth remembering…" value={draft.note} onChange={event => setDraft(current => ({ ...current, note: event.target.value }))} />
-              </div>
-
-              <div className="receipt-word-block">
-                <div className="receipt-line">
-                  <label className="receipt-label" htmlFor="wordLearned">Word Learned:</label>
-                  <input className="receipt-input" id="wordLearned" placeholder="e.g. liminal" autoComplete="off" value={draft.word} onChange={event => setDraft(current => ({ ...current, word: event.target.value }))} />
-                </div>
-                <button type="button" className="lookup-button" onClick={lookupWord}>Look up ↗</button>
-                <div className="receipt-line">
-                  <label className="receipt-label" htmlFor="wordMeaning">Meaning:</label>
-                  <input className="receipt-input" id="wordMeaning" placeholder="In your own words" value={draft.meaning} onChange={event => setDraft(current => ({ ...current, meaning: event.target.value }))} />
-                </div>
-                <div className="save-feedback" aria-live="polite">{lookupFeedback}</div>
-              </div>
-
               <div className="receipt-actions">
                 <button className="save-button" type="submit"><span>Save</span></button>
-                <button className="clear-day" type="button" onClick={clearDay}>Clear</button>
               </div>
               <div className="save-feedback" aria-live="polite">{feedback}</div>
             </form>

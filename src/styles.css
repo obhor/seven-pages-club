@@ -150,18 +150,16 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 1px
 @keyframes drawer-in { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
 .drawer-close { position: absolute; top: 14px; right: 14px; border: 0; background: none; cursor: pointer; color: var(--muted); display: flex; padding: 8px; }
 .drawer-close:hover { color: var(--ink); }
-.receipt-head { text-align: center; }
+.receipt-head { text-align: center; margin-bottom: 30px; }
 .receipt-title { margin: 0; font-family: var(--sans); font-size: clamp(44px, 9vw, 56px); font-weight: 900; letter-spacing: -.045em; line-height: .95; text-transform: uppercase; }
-.receipt-stamp { margin: 10px 0 0; font-family: var(--sans); font-size: 9.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
-.receipt-status { margin: 7px 0 0; font-family: var(--sans); font-size: 8.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
-.receipt-status.state-goal, .receipt-status.state-over { color: var(--ink); }
-.receipt-rule { border-top: 1px dashed var(--ink); margin: 22px 0 25px; }
-.receipt-session { position: relative; padding-right: 18px; margin-bottom: 18px; }
-.receipt-line { display: flex; align-items: baseline; margin-bottom: 13px; }
-.receipt-label { flex: 0 0 104px; font-family: var(--sans); font-size: 12.5px; font-weight: 700; letter-spacing: -.01em; }
+.receipt-stamp { margin: 10px 0 0; font-family: var(--sans); font-size: 14.25px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.receipt-session { position: relative; padding-right: 18px; margin-bottom: 30px; }
+.receipt-field { margin-bottom: 16px; }
+.receipt-field-note { margin-bottom: 0; }
+.receipt-label { display: block; margin-bottom: 3px; font-family: var(--sans); font-size: 14.4px; font-weight: 700; letter-spacing: -.01em; }
 .receipt-input {
-  flex: 1 1 auto;
-  min-width: 0;
+  display: block;
+  width: 100%;
   border: 0;
   border-radius: 0;
   padding: 0 0 4px;
@@ -182,10 +180,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 1px
 .receipt-input[type='number']::-webkit-inner-spin-button, .receipt-input[type='number']::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 .remove-session { position: absolute; right: 0; top: 1px; width: 16px; height: 16px; border: 0; background: none; color: #aaa9a1; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; }
 .remove-session:hover { color: var(--ink); }
-.add-book { display: inline-flex; align-items: center; gap: 5px; margin: 0 0 26px; padding: 0 0 2px; border: 0; background: none; font-family: var(--sans); font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
+.add-book { display: inline-flex; align-items: center; gap: 5px; margin: 2px 0 0; padding: 0 0 2px; border: 0; background: none; font-family: var(--sans); font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
 .add-book:hover { border-bottom: 1px solid var(--ink); }
-.receipt-note-block { margin-bottom: 24px; }
-.receipt-note-block .receipt-label { display: block; margin-bottom: 6px; }
 .receipt-note {
   display: block;
   width: 100%;
@@ -193,29 +189,23 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 1px
   border: 0;
   padding: 0;
   resize: none;
-  overflow-y: auto;
+  overflow: hidden;
   color: var(--ink);
   font-family: 'Courier Prime', 'Courier New', monospace;
   font-weight: 700;
   font-size: 14px;
   line-height: 26px;
   background-color: transparent;
-  background-image: repeating-linear-gradient(to right, var(--ink) 0 2px, transparent 2px 6px), repeating-linear-gradient(to right, var(--ink) 0 2px, transparent 2px 6px);
-  background-size: 100% 1px;
-  background-position: 0 25px, 0 51px;
-  background-repeat: no-repeat;
+  background-image: radial-gradient(circle, var(--ink) 1px, transparent 1.3px);
+  background-size: 7px 26px;
+  background-position: 3.5px 12px;
+  background-repeat: repeat;
 }
 .receipt-note::placeholder { color: #b2b1aa; font-weight: 400; }
 .receipt-note:focus { outline: none; }
-.receipt-word-block { margin-bottom: 8px; }
-.receipt-word-block .receipt-line { margin-bottom: 10px; }
-.lookup-button { display: block; margin: -2px 0 12px auto; border: 0; background: none; padding: 0 0 2px; font-family: var(--sans); font-size: 8.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); cursor: pointer; }
-.lookup-button:hover { color: var(--ink); border-bottom: 1px solid var(--ink); }
 .receipt-actions { display: flex; align-items: center; gap: 12px; margin-top: 30px; }
 .save-button { flex: 1; min-height: 46px; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 0 15px; border: 1px solid var(--ink); background: var(--ink); color: var(--paper); cursor: pointer; font-family: var(--sans); font-weight: 700; text-transform: uppercase; letter-spacing: .14em; font-size: 11px; transition: background .18s, color .18s; }
 .save-button:hover { background: transparent; color: var(--ink); }
-.clear-day { border: 0; background: none; padding: 10px 0; color: var(--muted); cursor: pointer; font-family: var(--sans); font-weight: 700; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; }
-.clear-day:hover { color: var(--ink); }
 .save-feedback { min-height: 16px; margin-top: 10px; color: var(--muted); font-family: var(--sans); font-size: 9.5px; letter-spacing: .01em; line-height: 1.6; }
 .modal-backdrop { position: fixed; inset: 0; z-index: 110; background: rgba(23, 23, 21, .22); display: flex; align-items: center; justify-content: center; padding: 22px; overflow-y: auto; }
 .modal { width: min(420px, 100%); background: var(--paper); border: 1px solid var(--ink); padding: 28px; position: relative; box-shadow: 0 14px 50px rgba(0, 0, 0, .09); }
