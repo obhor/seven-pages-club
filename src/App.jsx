@@ -269,6 +269,7 @@ export default function App() {
       <header className="masthead" aria-labelledby="page-title">
         <span className="commit-mark" title={`${__COMMIT_COUNT__} commits`}>{__COMMIT_COUNT__}</span>
         <h1 className="hero-title" id="page-title"><span className="title-mark" aria-label="Seven"><span>7</span></span> Pages Book Club</h1>
+        <p className="city-label">PUNÉ</p>
         <nav className="account-links" aria-label="Account">
           <button className="account-link" onClick={user ? signOutUser : () => openAuth('signin')} title={user?.email || 'Sign in'}>Account</button>
         </nav>

@@ -43,6 +43,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 1px
 
 .masthead { position: relative; text-align: center; padding: 26px 0 22px; border-bottom: 1px solid var(--line); }
 .hero-title { margin: 0; display: flex; align-items: center; justify-content: center; gap: .12em; font-family: var(--display); font-size: clamp(42px, 5.6vw, 69px); font-weight: 400; line-height: .98; letter-spacing: -.055em; text-shadow: .018em 0 currentColor, -.012em 0 currentColor, 0 .008em currentColor; -webkit-text-stroke: .12px currentColor; }
+.city-label { margin: 7px 0 0; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 13px; font-weight: 400; letter-spacing: .25em; text-indent: .25em; line-height: 1; text-transform: uppercase; }
 .title-mark {
   flex-shrink: 0;
   display: inline-flex;
