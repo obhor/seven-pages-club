@@ -66,18 +66,6 @@ function getInitialEntries() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(sample)); } catch { /* ignore */ }
   return sample;
 }
-function computeChain(entries, goalOnly = false) {
-  const cursor = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const qualifies = key => goalOnly ? totalPages(entries[key]) >= GOAL : totalPages(entries[key]) > 0;
-  if (!qualifies(toKey(cursor))) cursor.setDate(cursor.getDate() - 1);
-  let length = 0;
-  for (let i = 0; i < 3660; i++) {
-    if (!qualifies(toKey(cursor))) break;
-    length++;
-    cursor.setDate(cursor.getDate() - 1);
-  }
-  return length;
-}
 
 export default function App() {
   const localEntriesRef = useRef(null);
@@ -171,12 +159,6 @@ export default function App() {
     }
     return cells;
   }, [daysInMonth, viewMonth]);
-
-  const monthStats = useMemo(() => {
-    const prefix = `${viewMonth.getFullYear()}-${String(viewMonth.getMonth() + 1).padStart(2, '0')}-`;
-    const dates = Object.keys(entries).filter(key => key.startsWith(prefix) && totalPages(entries[key]) > 0);
-    return { pages: dates.reduce((sum, key) => sum + totalPages(entries[key]), 0), days: dates.length };
-  }, [entries, viewMonth]);
 
   const isFutureMonth = (year, month) => new Date(year, month, 1) > new Date(now.getFullYear(), now.getMonth(), 1);
 
@@ -276,12 +258,6 @@ export default function App() {
       </header>
 
       <main>
-        <section className="metrics-strip" aria-label="Reading statistics">
-          <div className="metric"><div className="metric-label">Pages this month</div><div className="metric-value">{monthStats.pages.toLocaleString()}</div></div>
-          <div className="metric"><div className="metric-label">Reading days</div><div className="metric-value">{monthStats.days}</div></div>
-          <div className="metric"><div className="metric-label">Current chain</div><div className="metric-value">{computeChain(entries)}</div></div>
-        </section>
-
         <section className="calendar-section" aria-label="Reading calendar">
             <div className="month-switch">
               <button className="icon-button" onClick={() => changeMonth(-1)} aria-label="Previous month"><ChevronLeft size={18} strokeWidth={3.2} /></button>
