@@ -106,7 +106,6 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 1px
 .day-button.is-empty:hover:not(:disabled) { color: var(--ink); }
 .day-button.is-low { border: 6px solid var(--line-strong); color: var(--muted); }
 .day-button.is-goal, .day-button.is-over { background: transparent; border: 6px solid var(--ink); color: var(--ink); }
-.day-button.is-selected { box-shadow: 0 0 0 2px var(--paper), 0 0 0 3px var(--ink); }
 .day-button.is-today::after {
   content: '*';
   position: absolute;

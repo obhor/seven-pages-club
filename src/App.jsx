@@ -293,7 +293,6 @@ export default function App() {
                 const state = stateFor(total);
                 const future = cell.date > new Date(now.getFullYear(), now.getMonth(), now.getDate());
                 const classes = ['day-button', `is-${state}`];
-                if (cell.key === selectedKey) classes.push('is-selected');
                 if (cell.key === todayKey) classes.push('is-today');
                 return (
                   <div className="day-cell" key={cell.key} style={tailDays && cell.day === tailStart ? { gridColumnStart: 8 - tailDays } : undefined}>
