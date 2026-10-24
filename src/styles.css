@@ -6,7 +6,7 @@
   font-display: swap;
 }
 :root {
-  --paper: #f8f7f3;
+  --paper: #ececec;
   --ink: #171715;
   --muted: #77766f;
   --line: #d9d8d1;
@@ -43,6 +43,29 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 1px
 
 .masthead { position: relative; text-align: center; padding: 26px 0 22px; border-bottom: 1px solid var(--line); }
 .hero-title { margin: 0; display: flex; align-items: center; justify-content: center; gap: .12em; font-family: var(--display); font-size: clamp(37px, 4.93vw, 60.7px); font-weight: 400; line-height: .98; letter-spacing: -.055em; text-shadow: .018em 0 currentColor, -.012em 0 currentColor, 0 .008em currentColor; -webkit-text-stroke: .12px currentColor; }
+.daily-quote { max-width: 540px; margin: 22px auto 0; padding: 0 10px; text-align: center; }
+.daily-quote-text { margin: 0; font-family: var(--display); font-size: 16.5px; line-height: 1.55; letter-spacing: -.01em; text-wrap: balance; }
+.daily-quote-author { margin: 9px 0 0; font-family: var(--sans); font-size: 8.5px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+.club-layout { display: flex; flex-direction: column; gap: 24px; width: 100%; }
+.club-layout .calendar-section { order: -1; }
+.club-stat { max-width: 440px; animation: stat-drift 15s ease-in-out infinite; }
+.stat-one { animation-duration: 13s; animation-delay: -2s; }
+.stat-two { animation-duration: 17s; animation-delay: -7s; }
+.stat-three { animation-duration: 19s; animation-delay: -12s; }
+.stat-four { animation-duration: 23s; animation-delay: -5s; }
+@keyframes stat-drift {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  33% { transform: translate3d(2px, -3px, 0); }
+  66% { transform: translate3d(-2px, 2px, 0); }
+}
+@media (prefers-reduced-motion: reduce) { .club-stat { animation: none; } }
+.stat-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.stat-index { flex: 0 0 auto; width: clamp(27px, 2.55vw, 35px); height: clamp(27px, 2.55vw, 35px); border: 2px solid var(--ink); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-family: var(--sans); font-size: clamp(12px, 1.1vw, 15px); font-weight: 900; line-height: 1; }
+.stat-title { margin: 0; font-family: var(--sans); font-size: clamp(15px, 1.45vw, 20px); font-weight: 700; letter-spacing: .02em; text-transform: uppercase; }
+.stat-copy { margin: 0; font-family: var(--display); font-size: clamp(19px, 1.75vw, 24px); line-height: 1.38; }
+.stat-copy strong { font-weight: 700; }
+.stat-action { margin-top: 14px; padding: 0 0 2px; border: 0; border-bottom: 2px solid var(--ink); background: none; cursor: pointer; font-family: var(--sans); font-size: 13px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.stat-action:hover { color: var(--muted); border-bottom-color: var(--muted); }
 .title-mark {
   flex-shrink: 0;
   display: inline-flex;
@@ -122,6 +145,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 1px
 .day-button:disabled { cursor: default; pointer-events: none; }
 
 .index-legend { width: 214px; margin: 26px 0 0; }
+.club-footer { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-top: 18px; font-family: 'Courier Prime', 'Courier New', monospace; font-weight: 400; font-size: 10.5px; letter-spacing: .01em; color: var(--muted); }
+.club-footer span:last-child { text-align: right; }
 .index-legend ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 .index-legend li { display: grid; grid-template-columns: 16px 1fr; gap: 8px; font-family: var(--display); font-size: 10.5px; line-height: 1.38; color: var(--ink); }
 .index-mark { width: 15px; height: 15px; display: inline-flex; align-items: center; justify-content: center; justify-self: center; font-family: var(--sans); font-weight: 900; font-size: 8px; line-height: 1; margin-top: 1px; }
@@ -145,11 +170,15 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 1px
   overflow-y: auto;
   box-shadow: -20px 0 60px rgba(0, 0, 0, .08);
   animation: drawer-in .22s cubic-bezier(.2, .7, .2, 1);
+  display: flex;
+  flex-direction: column;
+  --dotted-rule: repeating-linear-gradient(to right, var(--ink) 0 2px, transparent 2px 6px);
 }
 @keyframes drawer-in { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
 .drawer-close { position: absolute; top: 14px; right: 14px; border: 0; background: none; cursor: pointer; color: var(--muted); display: flex; padding: 8px; }
 .drawer-close:hover { color: var(--ink); }
-.receipt-head { text-align: center; margin-bottom: 30px; }
+.receipt-head { text-align: center; flex: none; margin-top: auto; margin-bottom: 30px; }
+.day-panel form { flex: none; margin-bottom: auto; }
 .receipt-title { margin: 0; font-family: var(--sans); font-size: clamp(44px, 9vw, 56px); font-weight: 900; letter-spacing: -.045em; line-height: .95; text-transform: uppercase; }
 .receipt-stamp { margin: 10px 0 0; font-family: var(--sans); font-size: 14.25px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
 .receipt-session { position: relative; padding-right: 18px; margin-bottom: 30px; }
@@ -163,7 +192,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 1px
   border-radius: 0;
   padding: 0 0 4px;
   background-color: transparent;
-  background-image: repeating-linear-gradient(to right, var(--ink) 0 2px, transparent 2px 6px);
+  background-image: var(--dotted-rule);
   background-size: 100% 1px;
   background-position: 0 100%;
   background-repeat: no-repeat;
@@ -186,7 +215,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 1px
   width: 100%;
   min-height: 52px;
   border: 0;
-  padding: 0;
+  padding: 0 0 4px;
   resize: none;
   overflow: hidden;
   color: var(--ink);
@@ -195,10 +224,10 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 1px
   font-size: 14px;
   line-height: 26px;
   background-color: transparent;
-  background-image: radial-gradient(circle, var(--ink) 1px, transparent 1.3px);
-  background-size: 7px 26px;
-  background-position: 3.5px 12px;
-  background-repeat: repeat;
+  background-image: var(--dotted-rule);
+  background-size: 100% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
 }
 .receipt-note::placeholder { color: #b2b1aa; font-weight: 400; }
 .receipt-note:focus { outline: none; }
@@ -223,7 +252,16 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 1px
 }
 @media (min-width: 1024px) {
   html, body { overflow: hidden; }
-  .index-legend { position: fixed; left: 18px; bottom: 12px; margin: 0; z-index: 20; }
+  .page-shell { min-height: 100vh; display: flex; flex-direction: column; }
+  main { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+  .club-layout { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); grid-template-rows: auto 1fr auto; column-gap: clamp(28px, 4vw, 64px); }
+  .club-layout .calendar-section { grid-area: 1 / 2 / 4 / 3; order: 0; }
+  .club-stat { max-width: none; }
+  .stat-one { grid-column: 1; grid-row: 1; justify-self: end; align-self: start; width: min(100%, 430px); margin-top: 2px; margin-right: -14px; }
+  .stat-two { grid-column: 1; grid-row: 2; justify-self: end; align-self: start; width: min(100%, 380px); margin-top: 26px; margin-right: 4px; }
+  .stat-three { grid-column: 3; grid-row: 1; justify-self: start; align-self: start; width: min(100%, 420px); margin-top: clamp(46px, 9vh, 96px); margin-left: 10px; }
+  .stat-four { grid-column: 3; grid-row: 3; justify-self: start; align-self: end; width: min(100%, 430px); margin-bottom: 10px; margin-left: 20px; }
+  .index-legend { position: fixed; left: 18px; bottom: 68px; margin: 0; z-index: 20; }
 }
 @media (max-width: 930px) {
   .page-shell { padding: 0 28px 32px; }

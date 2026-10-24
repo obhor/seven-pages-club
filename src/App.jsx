@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Plus, X } from 'lucide-react';
 import { GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
 import { collection, deleteDoc, doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { auth, db } from './firebase.js';
+import { quoteForDate } from './quotes.js';
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -35,6 +36,30 @@ function stateFor(total) {
   if (total < GOAL) return 'low';
   if (total === GOAL) return 'goal';
   return 'over';
+}
+function computeChain(entries) {
+  const cursor = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const qualifies = key => totalPages(entries[key]) > 0;
+  if (!qualifies(toKey(cursor))) cursor.setDate(cursor.getDate() - 1);
+  let length = 0;
+  for (let i = 0; i < 3660; i++) {
+    if (!qualifies(toKey(cursor))) break;
+    length++;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  return length;
+}
+function yearStats(entries, referenceDate) {
+  const year = referenceDate.getFullYear();
+  const prefix = `${year}-`;
+  const keys = Object.keys(entries).filter(key => key.startsWith(prefix) && totalPages(entries[key]) > 0);
+  const pages = keys.reduce((sum, key) => sum + totalPages(entries[key]), 0);
+  const elapsedDays = (Date.UTC(year, referenceDate.getMonth(), referenceDate.getDate()) - Date.UTC(year, 0, 1)) / 86400000 + 1;
+  const daysInYear = new Date(year, 1, 29).getDate() === 29 ? 366 : 365;
+  // ponytail: two weeks and seven reading days is a deliberately conservative confidence gate
+  const reliable = elapsedDays >= 14 && keys.length >= 7;
+  const projected = reliable ? Math.round((pages / elapsedDays) * daysInYear / 10) * 10 : 0;
+  return { pages, reliable, projected };
 }
 function blankEntry() {
   return { sessions: [] };
@@ -148,6 +173,7 @@ export default function App() {
     };
   }, [panelOpen]);
 
+  const dailyQuote = quoteForDate(now);
   const daysInMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 0).getDate();
   const tailDays = daysInMonth % 7;
   const tailStart = daysInMonth - tailDays + 1;
@@ -159,6 +185,15 @@ export default function App() {
     }
     return cells;
   }, [daysInMonth, viewMonth]);
+
+  const monthStats = useMemo(() => {
+    const prefix = `${viewMonth.getFullYear()}-${String(viewMonth.getMonth() + 1).padStart(2, '0')}-`;
+    const dates = Object.keys(entries).filter(key => key.startsWith(prefix) && totalPages(entries[key]) > 0);
+    return { pages: dates.reduce((sum, key) => sum + totalPages(entries[key]), 0) };
+  }, [entries, viewMonth]);
+  const chain = computeChain(entries);
+  const totalAll = Object.keys(entries).reduce((sum, key) => sum + totalPages(entries[key]), 0);
+  const projection = yearStats(entries, now);
 
   const isFutureMonth = (year, month) => new Date(year, month, 1) > new Date(now.getFullYear(), now.getMonth(), 1);
 
@@ -256,7 +291,32 @@ export default function App() {
         </nav>
       </header>
 
+      <section className="daily-quote" aria-label="Quote of the day">
+        <p className="daily-quote-text">“{dailyQuote.text}”</p>
+        <p className="daily-quote-author">{dailyQuote.author}</p>
+      </section>
+
       <main>
+        <div className="club-layout">
+        <article className="club-stat stat-one">
+          <div className="stat-head"><span className="stat-index" aria-hidden="true">1</span><h3 className="stat-title">Pages This Month</h3></div>
+          <p className="stat-copy">
+            {monthStats.pages > 0
+              ? <>You’ve read <strong>{monthStats.pages.toLocaleString()}</strong> {monthStats.pages === 1 ? 'page' : 'pages'} this month.</>
+              : 'Your reading for this month starts here.'}
+          </p>
+          {monthStats.pages === 0 && <button className="stat-action" type="button" onClick={() => selectDate(todayKey)}>Start reading</button>}
+        </article>
+
+        <article className="club-stat stat-two">
+          <div className="stat-head"><span className="stat-index" aria-hidden="true">2</span><h3 className="stat-title">Current Chain</h3></div>
+          <p className="stat-copy">
+            {chain > 0
+              ? <>You’ve shown up to read for <strong>{chain}</strong> consecutive {chain === 1 ? 'day' : 'days'}.</>
+              : 'Your next reading chain starts with one day.'}
+          </p>
+        </article>
+
         <section className="calendar-section" aria-label="Reading calendar">
             <div className="month-switch">
               <button className="icon-button" onClick={() => changeMonth(-1)} aria-label="Previous month"><ChevronLeft size={18} strokeWidth={3.2} /></button>
@@ -282,6 +342,25 @@ export default function App() {
               })}
             </div>
         </section>
+
+        <article className="club-stat stat-three">
+          <div className="stat-head"><span className="stat-index" aria-hidden="true">3</span><h3 className="stat-title">Total Pages</h3></div>
+          <p className="stat-copy">
+            {totalAll > 0
+              ? <>You’ve read <strong>{totalAll.toLocaleString()}</strong> {totalAll === 1 ? 'page' : 'pages'} since you started.</>
+              : 'Every page counts. Your reading history begins with your first entry.'}
+          </p>
+        </article>
+
+        <article className="club-stat stat-four">
+          <div className="stat-head"><span className="stat-index" aria-hidden="true">4</span><h3 className="stat-title">Year-End Estimate</h3></div>
+          <p className="stat-copy">
+            {projection.reliable
+              ? <>At your current pace, you’re projected to read <strong>{projection.projected.toLocaleString()}</strong> pages by the end of this year.</>
+              : 'Your year-end estimate will appear once you’ve built up some reading history.'}
+          </p>
+        </article>
+        </div>
       </main>
 
       {panelOpen && (
@@ -329,6 +408,11 @@ export default function App() {
           <li><span className="index-mark mark-today"><span>7</span><span className="index-star">*</span></span><span>Marks the current day.</span></li>
         </ul>
       </aside>
+
+      <footer className="club-footer">
+        <span>© {now.getFullYear()} Seven Pages Book Club</span>
+        <span>Made with love in Pune</span>
+      </footer>
 
       {signInOpen && <div className="modal-backdrop" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) setSignInOpen(false); }}>
         <section className="modal" role="dialog" aria-modal="true" aria-labelledby="signInHeading">
